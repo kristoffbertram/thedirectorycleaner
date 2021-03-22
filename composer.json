@@ -1,6 +1,7 @@
 {
   "name" : "kristoffbertram/thedirectorycleaner",
   "description": "A Directory Cleaner for PHP",
+  "type": "library",
   "license": "unlicense",
   "authors": [
     {
