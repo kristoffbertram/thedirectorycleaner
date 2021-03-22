@@ -1,0 +1,14 @@
+{
+  "name" : "kristoffbertram/thedirectorycleaner",
+  "description": "A Directory Cleaner for PHP",
+  "license": "unlicense",
+  "authors": [
+    {
+      "name": "Kristoff Bertram",
+      "email": "me@kristoffbertram.be"
+    }
+  ],
+  "autoload": {
+    "psr-0": {"kristoffbertram": "src/"}
+  }
+}
