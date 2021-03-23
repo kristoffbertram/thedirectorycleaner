@@ -10,6 +10,6 @@
     }
   ],
   "autoload": {
-    "psr-0": {"kristoffbertram": "src/"}
+    "psr-4": {"kristoffbertram": "src/"}
   }
 }
