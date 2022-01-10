@@ -9,10 +9,16 @@ class TheDirectoryCleaner
 {
 
     protected $resources = array();
+    protected $ignores = array();
 
     private function addResource($directory)
     {
         $this->resources[] = array($directory , 0);
+    }
+
+    private function addIgnore($resource)
+    {
+        $this->ignores[] = $resource;
     }
 
     private function getResources()
@@ -20,32 +26,45 @@ class TheDirectoryCleaner
         return $this->resources;
     }
 
+    private function getIgnores()
+    {
+        return $this->ignores;
+    }
+
     private function doCleaning() {
 
-        foreach ($this->getResources() as $index => $resource) {
+        if ($this->getResources()) {
 
-            $directory = $resource[0];
-            $canBeDeletedAfter = $resource[1];
+            foreach ($this->getResources() as $index => $resource) {
 
-            if (is_dir($directory)) {
+                $directory = $resource[0];
+                $canBeDeletedAfter = $resource[1];
 
-                $di = new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS);
-                $ri = new RecursiveIteratorIterator($di, RecursiveIteratorIterator::CHILD_FIRST);
+                if (is_dir($directory)) {
 
-                foreach ($ri as $r) {
+                    $di = new RecursiveDirectoryIterator($directory, FilesystemIterator::SKIP_DOTS);
+                    $ri = new RecursiveIteratorIterator($di, RecursiveIteratorIterator::CHILD_FIRST);
 
-                    $creationDate = filemtime($r);
-                    $timeToDelete = $creationDate + $canBeDeletedAfter;
+                    foreach ($ri as $r) {
 
-                    if (time() >= $timeToDelete) {
+                        if (!(in_array($r, $this->getIgnores()))) {
 
-                        if ($r->isDir()) {
+                            $creationDate = filemtime($r);
+                            $timeToDelete = $creationDate + $canBeDeletedAfter;
 
-                            rmdir($r);
+                            if (time() >= $timeToDelete) {
 
-                        } else {
+                                if ($r->isDir()) {
 
-                            unlink($r);
+                                    rmdir($r);
+
+                                } else {
+
+                                    unlink($r);
+
+                                }
+
+                            }
 
                         }
 
@@ -57,14 +76,22 @@ class TheDirectoryCleaner
 
         }
 
-
     }
 
     public function directory($directory)
     {
 
         $this->addResource($directory);
+        return $this;
 
+
+    }
+
+    public function ignore($resource)
+    {
+
+        $this->addIgnore($resource);
+        return $this;
 
     }
 
@@ -84,6 +111,7 @@ class TheDirectoryCleaner
             }
 
         }
+        return $this;
 
     }
 
@@ -91,6 +119,7 @@ class TheDirectoryCleaner
     {
 
         $this->doCleaning();
+        return $this;
 
     }
 
