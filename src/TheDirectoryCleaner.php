@@ -11,14 +11,37 @@ class TheDirectoryCleaner
     protected $resources = array();
     protected $ignores = array();
 
+    public $debug = false;
+    public $logs = array();
+
     private function addResource($directory)
     {
         $this->resources[] = array($directory , 0);
+
+        if (true === $this->debug) {
+
+            if (is_dir($directory)) {
+
+                $this->addLog($directory. " to be cleaned.");
+
+            } else {
+
+                $this->addLog($directory. " does not exist.");
+
+            }
+
+        }
+
     }
 
     private function addIgnore($resource)
     {
         $this->ignores[] = $resource;
+    }
+
+    private function addLog($log)
+    {
+        $this->logs[] = $log;
     }
 
     private function getResources()
@@ -47,7 +70,11 @@ class TheDirectoryCleaner
 
                     foreach ($ri as $r) {
 
-                        if (!(in_array($r, $this->getIgnores()))) {
+                        if ( ! (
+                            (in_array($r, $this->getIgnores())) ||
+                            (in_array($r->getPathName(), $this->getIgnores())) ||
+                            (in_array($r->getFileName(), $this->getIgnores()))
+                        ) ) {
 
                             $creationDate = filemtime($r);
                             $timeToDelete = $creationDate + $canBeDeletedAfter;
@@ -64,6 +91,24 @@ class TheDirectoryCleaner
 
                                 }
 
+                                $this->addLog($r->getPathName(). " was deleted.");
+
+                            } else {
+
+                                if (true === $this->debug) {
+
+                                    $this->addLog($r->getPathName(). " was not deleted because it is not old enough.");
+
+                                }
+
+                            }
+
+                        } else {
+
+                            if (true === $this->debug) {
+
+                                $this->addLog($r->getPathName(). " was not deleted because it is to be ignored.");
+
                             }
 
                         }
@@ -78,19 +123,26 @@ class TheDirectoryCleaner
 
     }
 
-    public function directory($directory)
+    public function addDirectory($directory)
     {
 
         $this->addResource($directory);
         return $this;
 
-
     }
 
-    public function ignore($resource)
+    /**
+     * Ignore either a full path or (broad) filename.
+     *
+     * @param $file
+     * @return $this
+     *
+     */
+
+    public function ignore($file)
     {
 
-        $this->addIgnore($resource);
+        $this->addIgnore($file);
         return $this;
 
     }
@@ -99,7 +151,7 @@ class TheDirectoryCleaner
     {
 
         $now = new \DateTime();
-        $then = new \DateTime('now +'.$string);
+        $then = new \DateTime('now +' . $string);
         $canBeDeletedAfter = $then->getTimestamp() - $now->getTimestamp();
 
         foreach ($this->getResources() as $index => $resource) {
@@ -120,6 +172,23 @@ class TheDirectoryCleaner
 
         $this->doCleaning();
         return $this;
+
+    }
+
+    public function logs($echo = true)
+    {
+
+        if (true === $echo) {
+
+            echo '<pre>';
+            print_r($this->logs);
+            echo '</pre>';
+
+        } else {
+
+            return $this->logs;
+
+        }
 
     }
 
