@@ -7,9 +7,13 @@ This package will delete directories and files inside a directory. Either instan
 Specify one more directories that need cleaning. Optionally, define filepaths or file names to be ignored or set a time (e.g. 10 minutes, 1 day, 2 weeks.) Finally, run clean();
 
 $TheDirectoryCleaner->addDirectory(__DIR__."/cache");
+
 $TheDirectoryCleaner->ignore(__DIR__."/cache/ignore.txt");
+
 $TheDirectoryCleaner->ignore("anything.txt");
+
 $TheDirectoryCleaner->after("1 day");
+
 $TheDirectoryCleaner->clean();
 
 ### Changelog
